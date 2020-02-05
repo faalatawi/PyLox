@@ -29,6 +29,24 @@ class Scanner(object):
             ">" : TokenType.GREATER,
             ">=" : TokenType.GREATER_EQUAL 
         }
+        self.keywords = {
+            'and': TokenType.AND,
+            'class': TokenType.CLASS,
+            'else': TokenType.ELSE,
+            'false': TokenType.FALSE,
+            'for': TokenType.FOR,
+            'fun': TokenType.FUN,
+            'if': TokenType.IF,
+            'nil': TokenType.NIL,
+            'or': TokenType.OR,
+            'print': TokenType.PRINT,
+            'return': TokenType.RETURN,
+            'super': TokenType.SUPER,
+            'this': TokenType.THIS,
+            'true': TokenType.TRUE,
+            'var': TokenType.VAR,
+            'while': TokenType.WHILE
+        }
 
     def advance(self):
         c = self.source[self.current]
@@ -101,6 +119,28 @@ class Scanner(object):
         value = float(value)
         self.addToken(TokenType.NUMBER, value)
 
+    def isAlpha(self, c):
+        if 'a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_' :
+            return True
+        return False
+
+    def isAlphaNumeric(self,c):
+        return self.isDigit(c) or self.isDigit(c)
+
+    def identifier(self):
+        while self.isAlphaNumeric(self.peek()) :
+            self.advance()
+
+        start = self.start 
+        end = self.current 
+        value = self.source[start:end] #TODO
+
+        if value in self.keywords:
+            self.addToken(self.keywords[value])
+        else:
+            self.addToken(TokenType.IDENTIFIER)
+
+        
 
     def scanToken(self):
         c = self.advance()
@@ -128,6 +168,9 @@ class Scanner(object):
 
         elif self.isDigit(c):
             self.number()
+
+        elif self.isAlpha(c):
+            self.identifier()
 
         else:
             lox_error(self.line, "Unexpected character.")
