@@ -141,7 +141,6 @@ class Scanner(object):
             self.addToken(TokenType.IDENTIFIER)
 
         
-
     def scanToken(self):
         c = self.advance()
 
