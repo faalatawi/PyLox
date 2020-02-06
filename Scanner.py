@@ -132,12 +132,10 @@ class Scanner(object):
         self.addToken(TokenType.NUMBER, value)
 
     def isAlpha(self, c):
-        if 'a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_' :
-            return True
-        return False
+        return 'a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_'
 
     def isAlphaNumeric(self,c):
-        return self.isDigit(c) or self.isDigit(c)
+        return self.isAlpha(c) or self.isDigit(c)
 
     def identifier(self):
         while self.isAlphaNumeric(self.peek()) :
@@ -205,8 +203,14 @@ if __name__ == "__main__":
     var x = 12.1
     if else 
     for 
-    //
+    // kdjkdkkd
     /
+    {}
+    ()
+    print 
+    "fias'' // "
+
+    class
     
     """)
 
