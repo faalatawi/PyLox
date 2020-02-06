@@ -1,6 +1,18 @@
 from tokentype import TokenType
 from token import Token
-from PyLox import error as lox_error
+# from PyLox import lox_error
+from termcolor import colored
+
+
+
+def report(line, where, message):
+    out = f"[line {line} ] Error {where} :  {message} "
+    # print(colored(out, 'red'))
+    print(out)
+
+
+def lox_error(line, message):
+    report(line, "", message)
 
 class Scanner(object):
     def __init__(self, source):
@@ -172,7 +184,7 @@ class Scanner(object):
             self.identifier()
 
         else:
-            lox_error(self.line, "Unexpected character.")
+            lox_error(self.line, "Unexpected character. : " + c)
     
     def isAtEnd(self):
         return self.current >= len(self.source)
@@ -188,5 +200,18 @@ class Scanner(object):
         return self.tokens
 
     
+if __name__ == "__main__":
+    s = Scanner("""
+    var x = 12.1
+    if else 
+    for 
+    //
+    /
+    
+    """)
 
+    ts = s.scanTokens() 
+
+    for t in ts :
+        print(t)
     

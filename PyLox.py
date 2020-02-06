@@ -18,7 +18,7 @@ def report(line, where, message):
     print(colored(out, 'red'))
 
 
-def error(line, message):
+def lox_error(line, message):
     report(line, "", message)
 
 
