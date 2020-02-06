@@ -1,18 +1,8 @@
 from tokentype import TokenType
 from token import Token
-# from PyLox import lox_error
+from PyLox import lox_error
 from termcolor import colored
 
-
-
-def report(line, where, message):
-    out = f"[line {line} ] Error {where} :  {message} "
-    # print(colored(out, 'red'))
-    print(out)
-
-
-def lox_error(line, message):
-    report(line, "", message)
 
 class Scanner(object):
     def __init__(self, source):
@@ -212,6 +202,9 @@ if __name__ == "__main__":
 
     class
     
+    // this is a comment
+(( )){} // grouping stuff
+!*+-/=<> <= == // operators
     """)
 
     ts = s.scanTokens() 

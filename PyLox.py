@@ -4,8 +4,10 @@ Feb, 2020
 
 """
 import sys
+
 from termcolor import colored
-from Scanner import lox_scanner
+
+# from scanner import Scanner
 
 # Global verabiles
 # ++++++++++++++++++++++
@@ -14,16 +16,16 @@ HAD_ERROR = True
 
 
 def report(line, where, message):
-    out = "[line " + line + "] Error" + where + ": " + message
-    print(colored(out, 'red'))
+    out = f"[line {line} ] Error {where} :  {message} "
+    # print(colored(out, 'red'))
+    print(out)
 
 
 def lox_error(line, message):
     report(line, "", message)
 
-
 def run(source):
-    scanner = lox_scanner(source)
+    scanner = Scanner(source)
     tokens = scanner.scanTokens()
 
     for token in tokens:
