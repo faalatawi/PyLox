@@ -19,12 +19,11 @@ def defineType(class_name, base_name, args):
 
     return f"""\n
 class {class_name}({base_name}):
-\tdef __init__(self, {constr_args}):
+\t def __init__(self, {constr_args}):
 {constr_body}
+\t def accept(self, visitor):
+\t\treturn visitor.visit{class_name}(self)
 """
-# def accept(self, visitor):
-#     return visitor.{visit_type}(self)
-
 def defineAst(output_file, base_name, grammer):
     base = f"""
 
