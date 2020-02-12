@@ -3,7 +3,6 @@ from token import Token
 from PyLox import lox_error
 from termcolor import colored
 
-
 class Scanner(object):
     def __init__(self, source):
         self.source = source
