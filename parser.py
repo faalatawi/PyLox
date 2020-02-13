@@ -1,5 +1,11 @@
 import grammer
 from tokentype import TokenType
+import PyLox
+
+class ParseError(Exception):
+    """This is a parsing error"""
+    pass 
+
 
 class Parser(object):
     
@@ -92,12 +98,23 @@ class Parser(object):
         
         if self._match([TokenType.LEFT_PAREN]) : 
             expr = self._expression()
-            self._consume(RIGHT_PAREN, "Expect ')' after expression.")
+            self._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
 
             return grammer.Grouping(expr)
 
     # ===================================================
     # Helping methods 
+
+    def _consume(self, token, message):
+        if self._check(token):
+            return self._advance()
+        
+        raise self._error(token, message)
+
+    def _error(self, token, message):
+        PyLox.lox_error(token, message)
+
+        return ParseError()
 
     def _match(self, match_list):
         for type in match_list:
@@ -107,11 +124,11 @@ class Parser(object):
         
         return False
 
-    def _check(self, type):
+    def _check(self, token):
         if self._is_at_end():
             return False
         
-        return self._peek() == type
+        return self._peek() == token
 
     def _advance(self):
         if not self._is_at_end():
@@ -127,7 +144,5 @@ class Parser(object):
 
     def _previous(self):
         return self._tokens[self._current - 1]
-
-    
 
 
