@@ -11,4 +11,4 @@ class Token(object):
         self.line = line
     
     def __str__(self):
-        return f"Token [type : {self.type}, text: {self.lexeme} literal : {self.literal}, line : {self.line}]"
+        return f"Token [type : {self.type}, lexeme: {self.lexeme} literal : {self.literal}, line : {self.line}]"

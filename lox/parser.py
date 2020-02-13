@@ -174,3 +174,27 @@ class Parser(object):
         return self._tokens[self._current - 1]
 
 
+# test
+if __name__ == "__main__":
+    
+    import scanner 
+
+    source = "1 - ( 123 * 34 )"
+
+    lox_scan = scanner.Scanner(source)
+
+    tokens = lox_scan.scanTokens()
+
+    print("==> Tokens:")
+    for t in tokens:
+        print(t)
+    print("\n\n")
+
+    lox_parser = Parser(tokens)
+    result = lox_parser.parse()
+
+    import ast_printer
+
+    printer = ast_printer.ASTPrinter()
+
+    print(printer.print(result))

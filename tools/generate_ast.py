@@ -21,6 +21,8 @@ class {class_name}({base_name}):
 \tdef accept(self, visitor):
 \t\treturn visitor.visit{class_name}(self)
 """
+
+
 def defineAst(output_file, base_name, grammer):
     base = f"""# Copyright (c) 2020 Faisal Alatawi. All rights reserved
 # Using this source code is governed by an MIT license
@@ -31,6 +33,12 @@ class {base_name}:
 """
     output_file.write(base)
 
+    # Visitor interface 
+    visit = "\nclass VisitorInterface:\n"
+    for k in grammer.keys():
+        visit += f"\tdef visit{k}(self, expr):\n\t\tpass\n"
+    output_file.write(visit)
+
     for k, v in grammer.items():
         output_file.write(defineType(k, base_name, v))
     
@@ -38,7 +46,7 @@ class {base_name}:
 
 
 if __name__ == "__main__":
-    path = "lox/grammer2.py"
+    path = "lox/grammer.py"
 
     grammer = {   
             "Binary"   : ["left", "operator", "right"],

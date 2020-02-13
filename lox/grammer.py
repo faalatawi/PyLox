@@ -5,6 +5,16 @@
 class Expr:
     pass
 
+class VisitorInterface:
+	def visitBinary(self, expr):
+		pass
+	def visitGrouping(self, expr):
+		pass
+	def visitLiteral(self, expr):
+		pass
+	def visitUnary(self, expr):
+		pass
+
 
 class Binary(Expr):
 	def __init__(self, left, operator, right):
