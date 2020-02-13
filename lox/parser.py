@@ -5,6 +5,7 @@
 import grammer
 from token_type import TokenType
 import lox_log as LoxLog 
+from token import Token 
 
 class ParseError(Exception):
     """This is a parsing error"""
@@ -20,7 +21,8 @@ class Parser(object):
     def parse(self):
         try : 
             return self._expression()
-        except:
+        except ParseError:
+            print("ParseError")
             return None
     
     def _expression(self):
@@ -100,6 +102,7 @@ class Parser(object):
             return grammer.Literal(None)
         
         # NUMBER, STRING
+        print("peek == ", self._peek())
         if self._match([TokenType.NUMBER, TokenType.STRING]):
             value = self._previous().literal
             return grammer.Literal(value)
@@ -144,33 +147,33 @@ class Parser(object):
 
         return ParseError()
 
-    def _match(self, match_list):
-        for type in match_list:
-            if self._check(type) :
+    def _match(self, match_list) -> bool:
+        for _type in match_list:
+            if self._check(_type) :
                 self._advance()
                 return True
         
         return False
 
-    def _check(self, token):
+    def _check(self, token) -> bool:
         if self._is_at_end():
             return False
         
-        return self._peek() == token
+        return self._peek().type == token
 
-    def _advance(self):
+    def _advance(self) -> Token:
         if not self._is_at_end():
             self._current += 1
 
         return self._previous()    
 
-    def _peek(self):
+    def _peek(self) -> Token:
         return self._tokens[self._current]
 
-    def _is_at_end(self):
-        return self._peek() == TokenType.EOF
+    def _is_at_end(self) -> bool:
+        return self._peek().type == TokenType.EOF
 
-    def _previous(self):
+    def _previous(self) -> Token:
         return self._tokens[self._current - 1]
 
 
@@ -179,7 +182,7 @@ if __name__ == "__main__":
     
     import scanner 
 
-    source = "1 - ( 123 * 34 )"
+    source = ""
 
     lox_scan = scanner.Scanner(source)
 
