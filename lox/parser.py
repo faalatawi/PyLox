@@ -16,10 +16,15 @@ class Parser(object):
     def __init__(self, tokens):
         self._tokens  = tokens
         self._current = 0
-
+    
+    def parse(self):
+        try : 
+            return self._expression()
+        except:
+            return None
+    
     def _expression(self):
         return self._equality()
-
 
     def _equality(self):
         """equality → comparison ( ( "!=" | "==" ) comparison )* """
@@ -105,6 +110,25 @@ class Parser(object):
             self._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
 
             return grammer.Grouping(expr)
+
+        raise self._error(self._peek(), "Expect expression.")
+    
+    def _synchronize(self):
+        token_list = [TokenType.CLASS, TokenType.FUN, TokenType.VAR,
+                    TokenType.FOR, TokenType.IF, TokenType.WHILE,
+                    TokenType.PRINT, TokenType.RETURN]
+
+        self._advance()
+
+        while not self._is_at_end():
+            if self._previous().type == TokenType.SEMICOLON:
+                return
+
+            t = self._peek().type
+            if t in token_list:
+                return
+            
+            self._advance()
 
     # ===================================================
     # Helping methods 
