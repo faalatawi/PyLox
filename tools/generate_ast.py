@@ -38,7 +38,7 @@ class {base_name}:
 
 
 if __name__ == "__main__":
-    path = "grammer.py"
+    path = "lox/grammer2.py"
 
     grammer = {   
             "Binary"   : ["left", "operator", "right"],

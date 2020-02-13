@@ -5,8 +5,8 @@
 import sys
 from token_type import TokenType
 from termcolor import colored
+import scanner
 
-# from scanner import Scanner
 
 # Global verabiles
 # ++++++++++++++++++++++
@@ -14,24 +14,9 @@ HAD_ERROR = True
 # ++++++++++++++++++++++
 
 
-def report(line, where, message):
-    out = f"[line {line} ] Error {where} :  {message} "
-    # print(colored(out, 'red'))
-    print(out)
-
-
-def error_line(line, message):
-    report(line, "", message)
-
-def error_token(token, message):
-    if token == TokenType.EOF :
-        report(token.line, "  at end", message)
-    
-    report(token.line, " at '" + token.lexeme + "'", message)
-
 def run(source):
-    scanner = Scanner(source)
-    tokens = scanner.scanTokens()
+    scan = scanner.Scanner(source)
+    tokens = scan.scanTokens()
 
     for token in tokens:
         print(token)

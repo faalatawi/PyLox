@@ -3,8 +3,8 @@
 # you can find it in the LICENSE file.
 
 import grammer
-from tokentype import TokenType
-import PyLox
+from token_type import TokenType
+import lox_log as LoxLog 
 
 class ParseError(Exception):
     """This is a parsing error"""
@@ -116,7 +116,7 @@ class Parser(object):
         raise self._error(token, message)
 
     def _error(self, token, message):
-        PyLox.error_token(token, message) 
+        LoxLog.error_token(token, message) 
 
         return ParseError()
 

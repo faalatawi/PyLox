@@ -4,8 +4,7 @@
 
 from token_type import TokenType
 from token import Token
-import PyLox 
-from termcolor import colored
+import lox_log as LoxLog 
 
 class Scanner(object):
     def __init__(self, source):
@@ -85,7 +84,7 @@ class Scanner(object):
         
         #Unterminated string.                                 
         if self.isAtEnd() :                                         
-            PyLox.error_line(self.line, "Unterminated string.")              
+            LoxLog.error_line(self.line, "Unterminated string.")              
             return
 
         # The closing ".
@@ -175,7 +174,7 @@ class Scanner(object):
             self.identifier()
 
         else:
-            PyLox.error_line(self.line, "Unexpected character. : " + c)
+            LoxLog.error_line(self.line, "Unexpected character. : " + c)
     
     def isAtEnd(self):
         return self.current >= len(self.source)
