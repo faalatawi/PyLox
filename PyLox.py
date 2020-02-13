@@ -4,6 +4,7 @@ Feb, 2020
 
 """
 import sys
+from tokentype import TokenType
 
 from termcolor import colored
 
@@ -21,8 +22,14 @@ def report(line, where, message):
     print(out)
 
 
-def lox_error(line, message):
+def error_line(line, message):
     report(line, "", message)
+
+def error_token(token, message):
+    if token == TokenType.EOF :
+        report(token.line, "  at end", message)
+    
+    report(token.line, " at '" + token.lexeme + "'", message)
 
 def run(source):
     scanner = Scanner(source)

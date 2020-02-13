@@ -1,6 +1,6 @@
 from tokentype import TokenType
 from token import Token
-from PyLox import lox_error
+import PyLox 
 from termcolor import colored
 
 class Scanner(object):
@@ -81,7 +81,7 @@ class Scanner(object):
         
         #Unterminated string.                                 
         if self.isAtEnd() :                                         
-            lox_error(self.line, "Unterminated string.")              
+            PyLox.error_line(self.line, "Unterminated string.")              
             return
 
         # The closing ".
@@ -171,7 +171,7 @@ class Scanner(object):
             self.identifier()
 
         else:
-            lox_error(self.line, "Unexpected character. : " + c)
+            PyLox.error_line(self.line, "Unexpected character. : " + c)
     
     def isAtEnd(self):
         return self.current >= len(self.source)
@@ -200,6 +200,8 @@ if __name__ == "__main__":
     "fias'' // "
 
     class
+    @ 
+    " student 
     
     // this is a comment
 (( )){} // grouping stuff
