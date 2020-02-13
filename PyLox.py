@@ -1,11 +1,9 @@
-"""
-Faisal Alatawi
-Feb, 2020
+# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Using this source code is governed by an MIT license
+# you can find it in the LICENSE file.
 
-"""
 import sys
-from tokentype import TokenType
-
+from token_type import TokenType
 from termcolor import colored
 
 # from scanner import Scanner

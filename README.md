@@ -1,2 +1,2 @@
 # PyLox
- Implementation for lox programming language 
+ Implementation for [lox](https://craftinginterpreters.com/) programming language : 

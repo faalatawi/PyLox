@@ -1,4 +1,8 @@
-from tokentype import TokenType
+# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Using this source code is governed by an MIT license
+# you can find it in the LICENSE file.
+
+from token_type import TokenType
 from token import Token
 import PyLox 
 from termcolor import colored
@@ -186,7 +190,7 @@ class Scanner(object):
 
         return self.tokens
 
-    
+# For testing    
 if __name__ == "__main__":
     s = Scanner("""
     var x = 12.1

@@ -1,9 +1,6 @@
-import sys
-
-# grammer = {   "Binary"   : [("Expr","left"), ("Token", "operator"), ("Expr", "right")],
-#             "Grouping" : [("Expr","expression")],                      
-#             "Literal"  : [("Object", "value")],                         
-#             "Unary"    : [("Token", "operator")], [("Expr", "right")]}
+# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Using this source code is governed by an MIT license
+# you can find it in the LICENSE file.
 
 def defineType(class_name, base_name, args):
     
@@ -25,11 +22,12 @@ class {class_name}({base_name}):
 \t\treturn visitor.visit{class_name}(self)
 """
 def defineAst(output_file, base_name, grammer):
-    base = f"""
+    base = f"""# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Using this source code is governed by an MIT license
+# you can find it in the LICENSE file. 
 
 class {base_name}:
     pass
-
 """
     output_file.write(base)
 
@@ -40,14 +38,6 @@ class {base_name}:
 
 
 if __name__ == "__main__":
-    # arg_length = len(sys.argv)
-    # if arg_length != 3:
-    #     print("Usage: generate_ast [output directory]")
-    #     exit(2)        
-    
-    # path = sys.argv[2]
-    # runFile(path)
-
     path = "grammer.py"
 
     grammer = {   

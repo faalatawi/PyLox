@@ -1,8 +1,10 @@
+# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Using this source code is governed by an MIT license
+# you can find it in the LICENSE file.
+
 # from : https://github.com/selectnull/pylox/blob/1687ed65fe408f0d5996adb98c6c755c420afdf7/pylox/tokentype.py#L4
 
-
 from enum import Enum, auto
-
 
 class TokenType(Enum):
     # single character tokens
