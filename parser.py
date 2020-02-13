@@ -112,7 +112,7 @@ class Parser(object):
         raise self._error(token, message)
 
     def _error(self, token, message):
-        PyLox.error_token(token, message) ########################## TODO TODO TODO TODO 
+        PyLox.error_token(token, message) 
 
         return ParseError()
 
