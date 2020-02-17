@@ -2,10 +2,10 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-import grammer
-from token_type import TokenType
-import lox_log as LoxLog 
-from token import Token 
+from lox import grammer
+from lox.token_type import TokenType
+import lox.lox_log as LoxLog 
+from lox.token import Token 
 
 class ParseError(Exception):
     """This is a parsing error"""
@@ -102,7 +102,6 @@ class Parser(object):
             return grammer.Literal(None)
         
         # NUMBER, STRING
-        print("peek == ", self._peek())
         if self._match([TokenType.NUMBER, TokenType.STRING]):
             value = self._previous().literal
             return grammer.Literal(value)

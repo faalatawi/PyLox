@@ -2,8 +2,9 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file. 
 
-import grammer
-from token import Token
+from lox import grammer
+from lox.token import Token
+
 
 
 class ASTPrinter(grammer.VisitorInterface):

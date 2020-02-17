@@ -3,9 +3,11 @@
 # you can find it in the LICENSE file.
 
 import sys
-from token_type import TokenType
+from lox.token_type import TokenType
 from termcolor import colored
-import scanner
+from lox.scanner import Scanner
+from lox.parser import Parser
+from lox.ast_printer import ASTPrinter
 
 
 # Global verabiles
@@ -15,11 +17,16 @@ HAD_ERROR = True
 
 
 def run(source):
-    scan = scanner.Scanner(source)
+    scan = Scanner(source)
     tokens = scan.scanTokens()
 
-    for token in tokens:
-        print(token)
+    # for token in tokens:
+    #     print(token)
+    
+    pars = Parser(tokens)
+    result = pars.parse()
+
+    print(ASTPrinter().print(result))
 
 
 def runFile(path):

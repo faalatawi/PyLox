@@ -2,9 +2,9 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from token_type import TokenType
-from token import Token
-import lox_log as LoxLog 
+from lox.token_type import TokenType
+from lox.token import Token
+import lox.lox_log as LoxLog 
 
 class Scanner(object):
     def __init__(self, source):

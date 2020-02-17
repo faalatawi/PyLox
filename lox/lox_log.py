@@ -3,7 +3,7 @@
 # you can find it in the LICENSE file.
  
 
-from token_type import TokenType
+from lox.token_type import TokenType
 from termcolor import colored
 
 def report(line, where, message):
