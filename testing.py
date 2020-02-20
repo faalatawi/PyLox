@@ -5,15 +5,16 @@
 
 def test_interpreter():
     from lox import interpreter
-    interpreter.Interpreter()
+    from lox.token_type import TokenType
+    # interpreter.Interpreter()
+
+    raise interpreter.RuntimeError(TokenType.MINUS, "this is test")
+
 
 
 if __name__ == "__main__":
-    # test_interpreter()
+    test_interpreter()
 
-    a = 'ala'
-    b = 'ala'
 
-    print(float(a))
 
 

@@ -19,3 +19,6 @@ def error_token(token, message):
         report(token.line, "  at end", message)
     
     report(token.line, " at '" + token.lexeme + "'", message)
+
+def error_runtime():
+    pass

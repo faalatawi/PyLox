@@ -4,10 +4,31 @@
 
 from . import grammer
 from .token_type import TokenType
+from . import lox_log
+
+class RuntimeError(Exception):
+    """This is a RuntimeError error"""
+
+    def __init__(self, token : TokenType, message):
+        self.message = message 
+        self.token = token
+    
+    def __str__(self):
+        return f"RuntimeError: {self.message} , token = {self.token} "
+
 
 class Interpreter(grammer.VisitorInterface):
     def __init__(self):
         print("test")
+
+    def interpret(self, expr):
+        try:
+            value = self.evaluate(expr)
+        except RuntimeError as e:
+            pass
+
+        
+
     def evaluate(self, expr):
         return expr.accept(self)
 
@@ -21,6 +42,7 @@ class Interpreter(grammer.VisitorInterface):
         right = self.evaluate(expr.right)
 
         if expr.operator == TokenType.MINUS :
+            self._check_number_operand(expr.operator, right)
             return -1 * float(right)
         
         if expr.operator == TokenType.BANG :
@@ -35,12 +57,15 @@ class Interpreter(grammer.VisitorInterface):
         right = self.evaluate(expr.right)
 
         if expr.operator == TokenType.MINUS:
+            self._check_number_operands(expr.operator, left, right)
             return float(left) - float(right)
         
         if expr.operator == TokenType.SLASH :
+            self._check_number_operands(expr.operator, left, right)
             return float(left) / float(right)
         
         if expr.operator == TokenType.STAR :
+            self._check_number_operands(expr.operator, left, right)
             return float(left) * float(right)
 
         if expr.operator == TokenType.PLUS :
@@ -49,17 +74,23 @@ class Interpreter(grammer.VisitorInterface):
 
             if ( type(left) == str ) and ( type(right) == str ):
                 return left + right
+            
+            raise RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
         
         if expr.operator == TokenType.GREATER :
+            self._check_number_operands(expr.operator, left, right)
             return float(left) > float(right)
 
         if expr.operator == TokenType.GREATER_EQUAL :
+            self._check_number_operands(expr.operator, left, right)
             return float(left) >= float(right)
 
         if expr.operator == TokenType.LESS :
+            self._check_number_operands(expr.operator, left, right)
             return float(left) < float(right)
         
         if expr.operator == TokenType.LESS_EQUAL :
+            self._check_number_operands(expr.operator, left, right)
             return float(left) <= float(right)
         
         if expr.operator == TokenType.BANG_EQUAL :
@@ -87,4 +118,14 @@ class Interpreter(grammer.VisitorInterface):
         #     return True
         # if left == None :
         #     return False 
-        return left == right    
+        return left == right
+
+    def _check_number_operand(self, operator : TokenType, operand):
+        if type(operand) == float :
+            return
+        raise RuntimeError(operator, "Operand must be a number.") 
+
+    def _check_number_operands(self, operator, left, right):
+        if type(left) == float and type(right) == float :
+            return
+        raise RuntimeError(operator, "Operands must be a number.") 
