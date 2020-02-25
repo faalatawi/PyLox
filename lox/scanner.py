@@ -2,9 +2,9 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from lox.token_type import TokenType
-from lox.token import Token
-import lox.lox_log as LoxLog 
+from .token_type import TokenType
+from .token import Token
+from .lox_log as LoxLog 
 
 class Scanner(object):
     def __init__(self, source):
@@ -140,7 +140,7 @@ class Scanner(object):
         if value in self.keywords:
             self.addToken(self.keywords[value])
         else:
-            self.addToken(TokenType.IDENTIFIER)
+            self.addToken(TokenType.IDENTIFIER, value) # TODO:
 
         
     def scanToken(self):
