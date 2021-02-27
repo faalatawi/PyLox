@@ -1,3 +1,4 @@
 __pycache__/
 lox/__pycache__/
 .DS_Store
+.vscode/

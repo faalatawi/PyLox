@@ -2,36 +2,36 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from .token_type import TokenType
-from .token import Token
-from .lox_log as LoxLog 
+from lox.ast.token import TokenType, Token
+import lox.tools.logging as LoxLog
+
 
 class Scanner(object):
-    def __init__(self, source):
+    def __init__(self, source: str):
         self.source = source
         self.tokens = []
         self.current = 0
-        self.start = 0 
-        self.line  = 1
+        self.start = 0
+        self.line = 1
         self.token_dic = {
-            "{" : TokenType.LEFT_BRACE,
-            "}" : TokenType.RIGHT_BRACE,
-            "(" : TokenType.LEFT_PAREN,
-            ")" : TokenType.RIGHT_PAREN,
-            "," : TokenType.COMMA,
-            "." : TokenType.DOT,
-            "-" : TokenType.MINUS,
-            "+" : TokenType.PLUS,
-            ";" : TokenType.SEMICOLON,
-            "*" : TokenType.STAR,
-            "!" : TokenType.BANG,
-            "!=" : TokenType.BANG_EQUAL,
-            "=" : TokenType.EQUAL,
-            "==" : TokenType.EQUAL_EQUAL,
-            "<" : TokenType.LESS,
-            "<=" : TokenType.LESS_EQUAL,
-            ">" : TokenType.GREATER,
-            ">=" : TokenType.GREATER_EQUAL 
+            "{": TokenType.LEFT_BRACE,
+            "}": TokenType.RIGHT_BRACE,
+            "(": TokenType.LEFT_PAREN,
+            ")": TokenType.RIGHT_PAREN,
+            ",": TokenType.COMMA,
+            ".": TokenType.DOT,
+            "-": TokenType.MINUS,
+            "+": TokenType.PLUS,
+            ";": TokenType.SEMICOLON,
+            "*": TokenType.STAR,
+            "!": TokenType.BANG,
+            "!=": TokenType.BANG_EQUAL,
+            "=": TokenType.EQUAL,
+            "==": TokenType.EQUAL_EQUAL,
+            "<": TokenType.LESS,
+            "<=": TokenType.LESS_EQUAL,
+            ">": TokenType.GREATER,
+            ">=": TokenType.GREATER_EQUAL
         }
         self.keywords = {
             'and': TokenType.AND,
@@ -54,25 +54,25 @@ class Scanner(object):
 
     def advance(self):
         c = self.source[self.current]
-        self.current += 1 
-        return c 
-    
-    def addToken(self, type, literal = None):
-        text = self.source[self.start : self.current]
+        self.current += 1
+        return c
+
+    def addToken(self, type, literal=None):
+        text = self.source[self.start: self.current]
         t = Token(type, text, literal, self.line)
         self.tokens.append(t)
-    
+
     def match(self, expected):
-        if self.isAtEnd() :
+        if self.isAtEnd():
             return False
-        elif self.source[self.current] != expected :
+        elif self.source[self.current] != expected:
             return False
-        
+
         self.current += 1
         return True
 
     def peek(self):
-        if self.isAtEnd() :
+        if self.isAtEnd():
             return "\0"
         return self.source[self.current]
 
@@ -81,10 +81,10 @@ class Scanner(object):
             if self.peek() == "\n":
                 self.line += 1
             self.advance()
-        
-        #Unterminated string.                                 
-        if self.isAtEnd() :                                         
-            LoxLog.error_line(self.line, "Unterminated string.")              
+
+        # Unterminated string.
+        if self.isAtEnd():
+            LoxLog.error_line(self.line, "Unterminated string.")
             return
 
         # The closing ".
@@ -92,13 +92,13 @@ class Scanner(object):
 
         start = self.start + 1
         end = self.current - 1
-        value = self.source[start:end] #TODO
+        value = self.source[start:end]  # TODO
 
-        self.addToken(TokenType.STRING, value)                                              
-    
+        self.addToken(TokenType.STRING, value)
+
     def isDigit(self, c):
         return '0' <= c <= '9'
-    
+
     def peekNext(self):
         next = self.current + 1
         if next >= len(self.source):
@@ -106,19 +106,19 @@ class Scanner(object):
         return self.source[next]
 
     def number(self):
-        while self.isDigit(self.peek()) :
+        while self.isDigit(self.peek()):
             self.advance()
-        
+
         if self.peek() == '.' and self.isDigit(self.peekNext()):
             # Consume the "."
             self.advance()
-        
-        while self.isDigit(self.peek()) :
+
+        while self.isDigit(self.peek()):
             self.advance()
-        
-        start = self.start 
-        end = self.current 
-        value = self.source[start:end] #TODO
+
+        start = self.start
+        end = self.current
+        value = self.source[start:end]  # TODO
 
         value = float(value)
         self.addToken(TokenType.NUMBER, value)
@@ -126,23 +126,22 @@ class Scanner(object):
     def isAlpha(self, c):
         return 'a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_'
 
-    def isAlphaNumeric(self,c):
+    def isAlphaNumeric(self, c):
         return self.isAlpha(c) or self.isDigit(c)
 
     def identifier(self):
-        while self.isAlphaNumeric(self.peek()) :
+        while self.isAlphaNumeric(self.peek()):
             self.advance()
 
-        start = self.start 
-        end = self.current 
-        value = self.source[start:end] #TODO
+        start = self.start
+        end = self.current
+        value = self.source[start:end]  # TODO
 
         if value in self.keywords:
             self.addToken(self.keywords[value])
         else:
-            self.addToken(TokenType.IDENTIFIER, value) # TODO:
+            self.addToken(TokenType.IDENTIFIER, value)  # TODO:
 
-        
     def scanToken(self):
         c = self.advance()
 
@@ -152,12 +151,12 @@ class Scanner(object):
             self.addToken(self.token_dic[c])
 
         elif c == "/":
-            if self.match("/") :
+            if self.match("/"):
                 while self.peek() != "\n" and not self.isAtEnd():
                     self.advance()
             else:
                 self.addToken(TokenType.SLASH)
-        
+
         elif c in ['\r', ' ', '\t']:
             pass
 
@@ -175,7 +174,7 @@ class Scanner(object):
 
         else:
             LoxLog.error_line(self.line, "Unexpected character. : " + c)
-    
+
     def isAtEnd(self):
         return self.current >= len(self.source)
 
@@ -189,7 +188,8 @@ class Scanner(object):
 
         return self.tokens
 
-# For testing    
+
+# For testing
 if __name__ == "__main__":
     s = Scanner("""
     var x = 12.1
@@ -211,8 +211,7 @@ if __name__ == "__main__":
 !*+-/=<> <= == // operators
     """)
 
-    ts = s.scanTokens() 
+    ts = s.scanTokens()
 
-    for t in ts :
+    for t in ts:
         print(t)
-    
