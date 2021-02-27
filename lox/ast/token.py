@@ -3,6 +3,7 @@
 # you can find it in the LICENSE file.
 
 from enum import Enum, auto
+from typing import Union, Dict
 
 
 class TokenType(Enum):
@@ -55,7 +56,7 @@ class TokenType(Enum):
     EOF = auto()
 
 
-token_dic = {
+lox_token_dic: Dict[str, TokenType] = {
     "{": TokenType.LEFT_BRACE,
     "}": TokenType.RIGHT_BRACE,
     "(": TokenType.LEFT_PAREN,
@@ -76,7 +77,7 @@ token_dic = {
     ">=": TokenType.GREATER_EQUAL
 }
 
-keywords = {
+lox_keywords: Dict[str, TokenType] = {
     'and': TokenType.AND,
     'class': TokenType.CLASS,
     'else': TokenType.ELSE,
@@ -98,7 +99,7 @@ keywords = {
 
 class Token(object):
 
-    def __init__(self, type: TokenType,  lexeme: str,  literal,  line: int):
+    def __init__(self, type: TokenType,  lexeme: str,  literal: Union[float, str],  line: int):
         self.type = type
         self.lexeme = lexeme
         self.literal = literal

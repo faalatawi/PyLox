@@ -1,68 +1,37 @@
-# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Copyright (c) 2021 Faisal Alatawi. All rights reserved
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from lox.ast.token import TokenType, Token
+from lox.ast.token import TokenType, Token, lox_keywords, lox_token_dic
 import lox.tools.logging as LoxLog
+from typing import List, Union
 
 
 class Scanner(object):
     def __init__(self, source: str):
-        self.source = source
-        self.tokens = []
-        self.current = 0
-        self.start = 0
-        self.line = 1
-        self.token_dic = {
-            "{": TokenType.LEFT_BRACE,
-            "}": TokenType.RIGHT_BRACE,
-            "(": TokenType.LEFT_PAREN,
-            ")": TokenType.RIGHT_PAREN,
-            ",": TokenType.COMMA,
-            ".": TokenType.DOT,
-            "-": TokenType.MINUS,
-            "+": TokenType.PLUS,
-            ";": TokenType.SEMICOLON,
-            "*": TokenType.STAR,
-            "!": TokenType.BANG,
-            "!=": TokenType.BANG_EQUAL,
-            "=": TokenType.EQUAL,
-            "==": TokenType.EQUAL_EQUAL,
-            "<": TokenType.LESS,
-            "<=": TokenType.LESS_EQUAL,
-            ">": TokenType.GREATER,
-            ">=": TokenType.GREATER_EQUAL
-        }
-        self.keywords = {
-            'and': TokenType.AND,
-            'class': TokenType.CLASS,
-            'else': TokenType.ELSE,
-            'false': TokenType.FALSE,
-            'for': TokenType.FOR,
-            'fun': TokenType.FUN,
-            'if': TokenType.IF,
-            'nil': TokenType.NIL,
-            'or': TokenType.OR,
-            'print': TokenType.PRINT,
-            'return': TokenType.RETURN,
-            'super': TokenType.SUPER,
-            'this': TokenType.THIS,
-            'true': TokenType.TRUE,
-            'var': TokenType.VAR,
-            'while': TokenType.WHILE
-        }
+        self.source: str = source
+        self.tokens: List[Token] = []
+        self.current: int = 0
+        self.start: int = 0
+        self.line: int = 1
 
-    def advance(self):
+        # For optimization:
+        self.len_of_source: int = len(self.source)
+
+    def advance(self) -> str:
+        """ Get the current char and advance to the next """
         c = self.source[self.current]
         self.current += 1
         return c
 
-    def addToken(self, type, literal=None):
+    def addToken(self, type: TokenType, literal: Union[float, str] = None):
+        """ Add a token to tokens list """
         text = self.source[self.start: self.current]
         t = Token(type, text, literal, self.line)
         self.tokens.append(t)
 
-    def match(self, expected):
+    def match(self, expected: str) -> bool:
+        """ Match the input char with the current char and advance current counter """
         if self.isAtEnd():
             return False
         elif self.source[self.current] != expected:
@@ -71,12 +40,14 @@ class Scanner(object):
         self.current += 1
         return True
 
-    def peek(self):
+    def peek(self) -> str:
+        """ Return the current char without chaning the current counter """
         if self.isAtEnd():
             return "\0"
         return self.source[self.current]
 
     def string(self):
+        """ Add a string token to tokens list """
         while self.peek() != '"' and not self.isAtEnd():
             if self.peek() == "\n":
                 self.line += 1
@@ -92,20 +63,24 @@ class Scanner(object):
 
         start = self.start + 1
         end = self.current - 1
-        value = self.source[start:end]  # TODO
+        value = self.source[start:end]
 
         self.addToken(TokenType.STRING, value)
 
-    def isDigit(self, c):
+    def isDigit(self, c) -> bool:
+        """ Return True if c is a digit and False otherwise """
         return '0' <= c <= '9'
 
-    def peekNext(self):
+    def peekNext(self) -> str:
+        """ Peek into the next char without increasing current counter """
         next = self.current + 1
-        if next >= len(self.source):
+        if next >= self.len_of_source:
             return '\0'
         return self.source[next]
 
     def number(self):
+        """ Add a number token to tokens list"""
+
         while self.isDigit(self.peek()):
             self.advance()
 
@@ -118,37 +93,42 @@ class Scanner(object):
 
         start = self.start
         end = self.current
-        value = self.source[start:end]  # TODO
+        value = self.source[start:end]
 
         value = float(value)
         self.addToken(TokenType.NUMBER, value)
 
-    def isAlpha(self, c):
+    def isAlpha(self, c: str) -> bool:
+        """ Is this char is Alpha """
         return 'a' <= c <= 'z' or 'A' <= c <= 'Z' or c == '_'
 
-    def isAlphaNumeric(self, c):
+    def isAlphaNumeric(self, c) -> bool:
         return self.isAlpha(c) or self.isDigit(c)
 
     def identifier(self):
+        """ Add a identifier token to tokens list"""
+
         while self.isAlphaNumeric(self.peek()):
             self.advance()
 
         start = self.start
         end = self.current
-        value = self.source[start:end]  # TODO
+        value = self.source[start:end]
 
-        if value in self.keywords:
-            self.addToken(self.keywords[value])
+        if value in lox_keywords:
+            self.addToken(lox_keywords[value])
         else:
-            self.addToken(TokenType.IDENTIFIER, value)  # TODO:
+            self.addToken(TokenType.IDENTIFIER, value)
 
     def scanToken(self):
+        """ Scan one token from source string  """
+
         c = self.advance()
 
-        if c in self.token_dic:
+        if c in lox_token_dic:
             if c in ['!', '=', '<', '>'] and self.match("="):
                 c += '='
-            self.addToken(self.token_dic[c])
+            self.addToken(lox_token_dic[c])
 
         elif c == "/":
             if self.match("/"):
@@ -175,10 +155,13 @@ class Scanner(object):
         else:
             LoxLog.error_line(self.line, "Unexpected character. : " + c)
 
-    def isAtEnd(self):
-        return self.current >= len(self.source)
+    def isAtEnd(self) -> bool:
+        """ Are we at the end of the source?  """
+        return self.current >= self.len_of_source
 
-    def scanTokens(self):
+    def scanTokens(self) -> List[Token]:
+        """ Scan all the tokens in source string  """
+
         while not self.isAtEnd():
             self.start = self.current
             self.scanToken()
@@ -187,31 +170,3 @@ class Scanner(object):
         self.tokens.append(t)
 
         return self.tokens
-
-
-# For testing
-if __name__ == "__main__":
-    s = Scanner("""
-    var x = 12.1
-    if else 
-    for 
-    // kdjkdkkd
-    /
-    {}
-    ()
-    print 
-    "fias'' // "
-
-    class
-    @ 
-    " student 
-    
-    // this is a comment
-(( )){} // grouping stuff
-!*+-/=<> <= == // operators
-    """)
-
-    ts = s.scanTokens()
-
-    for t in ts:
-        print(t)
