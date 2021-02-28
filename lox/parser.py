@@ -3,6 +3,7 @@
 # you can find it in the LICENSE file.
 
 from lox.ast.grammer import Expr, Binary, Unary, Grouping, Literal
+from lox.ast.grammer import Stmt, PrintStatement, ExpressionStatement
 from lox.ast.token import Token, TokenType
 from lox.tools import logging as LoxLog
 from typing import List, Union
@@ -23,13 +24,29 @@ class Parser(object):
         self.tokens: List[Token] = tokens
         self.current: int = 0
 
-    def parse(self) -> Union[Expr, None]:
-        try:
-            return self.expression()
-        except ParseError:
-            # TODO : Deal with the error
-            print("Parse Error")
-            return None
+    def parse(self) -> List[Stmt]:
+        statements: List[Stmt] = []
+
+        while not self.isAtEnd():
+            statements.append(self.statement())
+
+        return statements
+
+    def statement(self) -> Stmt:
+        if self.match([TokenType.PRINT]):
+            return self.printStatement()
+
+        return self.expressionStatement()
+
+    def printStatement(self) -> Stmt:
+        value: Expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return PrintStatement(value)
+
+    def expressionStatement(self) -> Stmt:
+        value: Expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return ExpressionStatement(value)
 
     def expression(self) -> Expr:
         """ Return the root of the (current sub-) AST 

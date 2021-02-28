@@ -2,12 +2,15 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
+
 from typing import Union
-from lox.ast.token import Token 
+from lox.ast.token import Token
+
+
+
 
 class Expr(object):
-    def accept(self, visitor):
-        pass
+    pass
 
 
 class VisitorInterface(object):
@@ -50,3 +53,19 @@ class Unary(Expr):
 
 	def accept(self, visitor : VisitorInterface):
 		return visitor.visitUnary(self)
+
+
+class Stmt(object):
+    pass
+
+
+
+class ExpressionStatement(Stmt):
+	def __init__(self, expression : Expr):
+		self.expression : Expr = expression 
+
+
+class PrintStatement(Stmt):
+	def __init__(self, expression : Expr):
+		self.expression : Expr = expression 
+

@@ -3,11 +3,12 @@
 # you can find it in the LICENSE file.
 
 import sys
-from lox.token_type import TokenType
 from termcolor import colored
+from lox.ast.token import TokenType
+from lox.ast.ast_printer import ASTPrinter
 from lox.scanner import Scanner
 from lox.parser import Parser
-from lox.ast_printer import ASTPrinter
+from lox.interpreter import Interpreter
 
 
 # Global verabiles
@@ -22,11 +23,12 @@ def run(source):
 
     # for token in tokens:
     #     print(token)
-    
+
     pars = Parser(tokens)
     result = pars.parse()
 
     print(ASTPrinter().print(result))
+    print(Interpreter().interpret(result))
 
 
 def runFile(path):
