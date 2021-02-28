@@ -4,11 +4,31 @@
 
 
 def test_interpreter():
-    from lox import interpreter
-    from lox.token_type import TokenType
-    # interpreter.Interpreter()
+    pass
 
-    raise interpreter.RuntimeError(TokenType.MINUS, "this is test")
+
+def test_parser():
+    import scanner
+
+    source = ""
+
+    lox_scan = scanner.Scanner(source)
+
+    tokens = lox_scan.scanTokens()
+
+    print("==> Tokens:")
+    for t in tokens:
+        print(t)
+    print("\n\n")
+
+    lox_parser = Parser(tokens)
+    result = lox_parser.parse()
+
+    import ast_printer
+
+    printer = ast_printer.ASTPrinter()
+
+    print(printer.print(result))
 
 
 def test_scanner():
@@ -40,5 +60,25 @@ def test_scanner():
         print(tok)
 
 
+def test_ASTPrinter():
+    from lox.ast.token import TokenType, Token
+    from lox.ast.ast_printer import ASTPrinter
+    from lox.ast.grammer import Binary, Unary, Grouping, Literal
+
+    expression = Binary(
+        left=Unary(
+            operator=Token(TokenType.MINUS, "-", None, 1),
+            right=Literal(123)
+        ),
+        operator=Token(TokenType.STAR, "*", None, 1),
+        right=Grouping(
+            expression=Literal(45.67)
+        )
+
+    )
+
+    print(ASTPrinter().print(expression))
+
+
 if __name__ == "__main__":
-    test_scanner()
+    test_ASTPrinter()

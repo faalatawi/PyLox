@@ -1,60 +1,72 @@
-# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Copyright (c) 2021 Faisal Alatawi. All rights reserved
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-def defineType(class_name, base_name, args):
-    
-    if len(args) > 1:
-        constr_args = ", ".join(args)
-    else:
-        constr_args = args[0]
-    
-    constr_body = ""
-
-    for a in args :
-        constr_body += f"\t\tself.{a} = {a} \n"
-
-    return f"""\n
-class {class_name}({base_name}):
-\tdef __init__(self, {constr_args}):
-{constr_body}
-\tdef accept(self, visitor):
-\t\treturn visitor.visit{class_name}(self)
-"""
+from textwrap import dedent
+from typing import List, Tuple
 
 
-def defineAst(output_file, base_name, grammer):
-    base = f"""# Copyright (c) 2020 Faisal Alatawi. All rights reserved
-# Using this source code is governed by an MIT license
-# you can find it in the LICENSE file. 
+def define_type(class_name: str, base_name: str, args: List[Tuple[str, str]]) -> str:
+    constructor_args = ""
+    for arg_name, arg_type in args:
+        constructor_args += arg_name + " : " + arg_type + ", "
+    constructor_args = constructor_args[:-2]
 
-class {base_name}:
-    pass
-"""
+    out = "\n" + f"class {class_name}({base_name}):" + "\n"
+    out += "\t" + f"def __init__(self, {constructor_args}):" + "\n"
+
+    for arg_name, arg_type in args:
+        out += "\t\t" + f"self.{arg_name} : {arg_type} = {arg_name} \n"
+
+    out += "\n"
+
+    out += "\t" + "def accept(self, visitor : VisitorInterface):" + "\n"
+    out += "\t\t" + f"return visitor.visit{class_name}(self)" + "\n"
+
+    return out
+
+
+def define_AST(output_file, base_name: str,  grammer):
+    base = f"""\
+            # Copyright (c) 2021 Faisal Alatawi. All rights reserved
+            # Using this source code is governed by an MIT license
+            # you can find it in the LICENSE file.
+
+            from typing import Union
+            from lox.ast.token import Token 
+
+            class Expr(object):
+                def accept(self, visitor):
+                    pass
+            
+
+            """
+    base = dedent(base)
     output_file.write(base)
 
-    # Visitor interface 
-    visit = "\nclass VisitorInterface:\n"
+    # Visitor interface
+    output_file.write("class VisitorInterface(object):" + "\n")
     for k in grammer.keys():
-        visit += f"\tdef visit{k}(self, expr):\n\t\tpass\n"
-    output_file.write(visit)
+        output_file.write("\t" + f"def visit{k}(self, expr):" + "\n")
+        output_file.write("\t\t" + "pass" + "\n")
 
-    for k, v in grammer.items():
-        output_file.write(defineType(k, base_name, v))
-    
+    # Classes
+    for class_name, args in grammer.items():
+        output_file.write(define_type(class_name, base_name, args))
+
     output_file.close()
 
 
 if __name__ == "__main__":
-    path = "lox/grammer.py"
+    path = "lox/ast/grammer.py"
 
-    grammer = {   
-            "Binary"   : ["left", "operator", "right"],
-            "Grouping" : ["expression"],                      
-            "Literal"  : ["value"],                         
-            "Unary"    : ["operator","right"]
-        }
+    grammer = {
+        "Binary": [("left", "Expr"), ("operator", "Token"), ("right", "Expr")],
+        "Grouping": [("expression", "Expr")],
+        "Literal": [("value", "Union[float, str]")],
+        "Unary": [("operator", "Token"), ("right", "Expr")]
+    }
     base_name = "Expr"
-    
+
     with open(path, "w+") as output_file:
-        defineAst(output_file, base_name, grammer)
+        define_AST(output_file, base_name, grammer)

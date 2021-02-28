@@ -1,0 +1,8 @@
+fun test_fun(){
+    var xxx = 1;
+    if (xxx == 1) {
+        print "hello world";
+    } else {
+        print "no good";
+    }
+}

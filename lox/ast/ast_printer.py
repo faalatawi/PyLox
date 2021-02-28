@@ -3,31 +3,32 @@
 # you can find it in the LICENSE file.
 
 
-import lox.ast.grammer as grammer
 from lox.ast.token import Token
+from lox.ast.grammer import VisitorInterface, Expr, Binary, Unary, Grouping, Literal
+from typing import List
 
 
-class ASTPrinter(grammer.VisitorInterface):
+class ASTPrinter(VisitorInterface):
 
-    def print(self, expr):
+    def print(self, expr: Expr):
         return expr.accept(self)
 
-    def visitBinary(self, expr: grammer.Binary):
+    def visitBinary(self, expr: Binary):
         exprs = [expr.left, expr.right]
-        return self._parenthesize(expr.operator.lexeme, exprs)
+        return self.parenthesize(expr.operator.lexeme, exprs)
 
-    def visitGrouping(self, expr: grammer.Grouping):
-        return self._parenthesize("group", [expr.expression])
+    def visitGrouping(self, expr: Grouping):
+        return self.parenthesize("group", [expr.expression])
 
-    def visitLiteral(self, expr: grammer.Literal):
+    def visitLiteral(self, expr: Literal):
         if expr.value == None:
             return "nil"
         return str(expr.value)
 
-    def visitUnary(self, expr: grammer.Unary):
-        return self._parenthesize(expr.operator.lexeme, [expr.right])
+    def visitUnary(self, expr: Unary):
+        return self.parenthesize(expr.operator.lexeme, [expr.right])
 
-    def _parenthesize(self, name, exprs):
+    def parenthesize(self, name, exprs: List[Expr]):
         out = "(" + name
 
         for e in exprs:
@@ -37,23 +38,3 @@ class ASTPrinter(grammer.VisitorInterface):
         out += ")"
 
         return out
-
-
-# Testing
-if __name__ == "__main__":
-
-    from token_type import TokenType as TT
-
-    expression = grammer.Binary(
-        left=grammer.Unary(
-            operator=Token(TT.MINUS, "-", None, 1),
-            right=grammer.Literal(123)
-        ),
-        operator=Token(TT.STAR, "*", None, 1),
-        right=grammer.Grouping(
-            expression=grammer.Literal(45.67)
-        )
-
-    )
-
-    print(ASTPrinter().print(expression))

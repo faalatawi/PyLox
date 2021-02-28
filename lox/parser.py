@@ -1,204 +1,199 @@
-# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Copyright (c) 2021 Faisal Alatawi. All rights reserved
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from lox import grammer
-from lox.token_type import TokenType
-import lox.lox_log as LoxLog
-from lox.token import Token
+from lox.ast.grammer import Expr, Binary, Unary, Grouping, Literal
+from lox.ast.token import Token, TokenType
+from lox.tools import logging as LoxLog
+from typing import List, Union
 
 
 class ParseError(Exception):
-    """This is a parsing error"""
+    """ This is a parsing error """
     pass
 
 
 class Parser(object):
+    """
+    Parser Class get a list of tokens 
+    and output AST
+    """
 
-    def __init__(self, tokens):
-        self._tokens = tokens
-        self._current = 0
+    def __init__(self, tokens: List[Token]):
+        self.tokens: List[Token] = tokens
+        self.current: int = 0
 
-    def parse(self):
+    def parse(self) -> Union[Expr, None]:
         try:
-            return self._expression()
+            return self.expression()
         except ParseError:
-            print("ParseError")
+            # TODO : Deal with the error
+            print("Parse Error")
             return None
 
-    def _expression(self):
-        return self._equality()
+    def expression(self) -> Expr:
+        """ Return the root of the (current sub-) AST 
+            The rule: expression → equality
+        """
+        return self.equality()
 
-    def _equality(self):
+    def equality(self) -> Expr:
         """equality → comparison ( ( "!=" | "==" ) comparison )* """
-        expr = self._comparison()
+        expr = self.comparison()
 
         match_list = [TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL]
-        while self._match(match_list):
-            operator = self._previous()
-            right = self._comparison()
-            expr = grammer.Binary(expr, operator, right)
+        while self.match(match_list):
+            operator = self.previous()
+            right = self.comparison()
+            expr = Binary(expr, operator, right)
 
         return expr
 
-    # comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
-    def _comparison(self):
-        expr = self._addition()
+    def comparison(self) -> Expr:
+        """ comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ; """
+        expr = self.term()
 
         # GREATER, GREATER_EQUAL, LESS, LESS_EQUAL
         match_list = [TokenType.GREATER, TokenType.GREATER_EQUAL,
                       TokenType.LESS, TokenType.LESS_EQUAL]
-        while self._match(match_list):
-            operator = self._previous()
-            right = self._addition()
-            expr = grammer.Binary(expr, operator, right)
+        while self.match(match_list):
+            operator = self.previous()
+            right = self.term()
+            expr = Binary(expr, operator, right)
 
         return expr
 
-    def _addition(self):
-        expr = self._multiplication()
+    def term(self) -> Expr:
+        """ term → factor ( ( "-" | "+" ) factor )* ;"""
+
+        expr = self.factor()
 
         # MINUS, PLUS
         match_list = [TokenType.MINUS, TokenType.PLUS]
-        while self._match(match_list):
-            operator = self._previous()
-            right = self._multiplication()
-            expr = grammer.Binary(expr, operator, right)
+        while self.match(match_list):
+            operator = self.previous()
+            right = self.factor()
+            expr = Binary(expr, operator, right)
 
         return expr
 
-    def _multiplication(self):
-        expr = self._unary()
+    def factor(self) -> Expr:
+        """ factor → unary ( ( "/" | "*" ) unary )* ; """
+        expr = self.unary()
 
-        # SLASH, STAR
+        # SLASH / , STAR *
         match_list = [TokenType.SLASH, TokenType.STAR]
-        while self._match(match_list):
-            operator = self._previous()
-            right = self._unary()
-            expr = grammer.Binary(expr, operator, right)
+        while self.match(match_list):
+            operator = self.previous()
+            right = self.unary()
+            expr = Binary(expr, operator, right)
 
         return expr
 
-    # unary → ( "!" | "-" ) unary
-    #       | primary ;
-    def _unary(self):
+    def unary(self) -> Expr:
+        """ Rule: unary → ( "!" | "-" ) unary
+                        | primary ;
+        """
+
         #BANG, MINUS
         match_list = [TokenType.BANG, TokenType.MINUS]
-        if self._match(match_list):
-            operator = self._previous()
-            right = self._unary()
-            return grammer.Unary(operator, right)
+        if self.match(match_list):
+            operator = self.previous()
+            right = self.unary()
+            return Unary(operator, right)
 
-        return self._primary()
+        return self.primary()
 
-    # primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" ;
-    def _primary(self):
+    def primary(self) -> Expr:
+        """ Rule:  primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" ; """
 
-        if self._match([TokenType.FALSE]):
-            return grammer.Literal(False)
+        if self.match([TokenType.FALSE]):
+            return Literal(False)
 
-        if self._match([TokenType.TRUE]):
-            return grammer.Literal(True)
+        if self.match([TokenType.TRUE]):
+            return Literal(True)
 
-        if self._match([TokenType.NIL]):
-            return grammer.Literal(None)
+        if self.match([TokenType.NIL]):
+            return Literal(None)
 
         # NUMBER, STRING
-        if self._match([TokenType.NUMBER, TokenType.STRING]):
-            value = self._previous().literal
-            return grammer.Literal(value)
+        if self.match([TokenType.NUMBER, TokenType.STRING]):
+            value = self.previous().literal
+            return Literal(value)
 
-        if self._match([TokenType.LEFT_PAREN]):
-            expr = self._expression()
-            self._consume(TokenType.RIGHT_PAREN,
-                          "Expect ')' after expression.")
+        if self.match([TokenType.LEFT_PAREN]):
+            expr = self.expression()
+            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
 
-            return grammer.Grouping(expr)
+            return Grouping(expr)
 
-        raise self._error(self._peek(), "Expect expression.")
+        raise self.error(self.peek().type, "Expect expression.")
 
-    def _synchronize(self):
+    def synchronize(self):
+        """ TODO ???  """
         token_list = [TokenType.CLASS, TokenType.FUN, TokenType.VAR,
                       TokenType.FOR, TokenType.IF, TokenType.WHILE,
                       TokenType.PRINT, TokenType.RETURN]
 
-        self._advance()
+        self.advance()
 
-        while not self._is_at_end():
-            if self._previous().type == TokenType.SEMICOLON:
+        while not self.isAtEnd():
+            if self.previous().type == TokenType.SEMICOLON:
                 return
 
-            t = self._peek().type
+            t = self.peek().type
             if t in token_list:
                 return
 
-            self._advance()
+            self.advance()
 
-    # ===================================================
-    # Helping methods
+    def consume(self, token_type: TokenType, error_message: str):
+        """ Increase the current counter by 1 if the token_type is the same 
+            as the current TokenType otherwise raise error with error_message
+        """
+        if self.check(token_type):
+            return self.advance()
 
-    def _consume(self, token, message):
-        if self._check(token):
-            return self._advance()
+        raise self.error(token_type, error_message)
 
-        raise self._error(token, message)
-
-    def _error(self, token, message):
-        LoxLog.error_token(token, message)
-
+    def error(self, token_type: TokenType, message: str) -> ParseError:
+        """ Log the parser error and return ParseError object """
+        LoxLog.error_token(token_type, message)
         return ParseError()
 
-    def _match(self, match_list) -> bool:
-        for _type in match_list:
-            if self._check(_type):
-                self._advance()
+    def match(self, match_list: List[TokenType]) -> bool:
+        """ Return True if the current TokenType is in the input list of TokenTypes """
+        for type in match_list:
+            if self.check(type):
+                self.advance()
                 return True
-
         return False
 
-    def _check(self, token) -> bool:
-        if self._is_at_end():
-            return False
+    def check(self, token_type: TokenType) -> bool:
+        """ check if the given token_type is the same as the current token  """
+        if self.isAtEnd():
+            return False  # Todo : Is this nessary?
 
-        return self._peek().type == token
+        return self.peek().type == token_type
 
-    def _advance(self) -> Token:
-        if not self._is_at_end():
-            self._current += 1
+    def advance(self) -> Token:
+        """ Return current token and increase the current counter """
+        if not self.isAtEnd():
+            self.current += 1
 
-        return self._previous()
+        return self.previous()
 
-    def _peek(self) -> Token:
-        return self._tokens[self._current]
+    def peek(self) -> Token:
+        """
+            Return the current token 
+            Does not effect the current counter
+        """
+        return self.tokens[self.current]
 
-    def _is_at_end(self) -> bool:
-        return self._peek().type == TokenType.EOF
+    def isAtEnd(self) -> bool:
+        """ Return True if current TokenType is EOF (End Of File)"""
+        return self.peek().type == TokenType.EOF
 
-    def _previous(self) -> Token:
-        return self._tokens[self._current - 1]
-
-
-# test
-if __name__ == "__main__":
-
-    import scanner
-
-    source = ""
-
-    lox_scan = scanner.Scanner(source)
-
-    tokens = lox_scan.scanTokens()
-
-    print("==> Tokens:")
-    for t in tokens:
-        print(t)
-    print("\n\n")
-
-    lox_parser = Parser(tokens)
-    result = lox_parser.parse()
-
-    import ast_printer
-
-    printer = ast_printer.ASTPrinter()
-
-    print(printer.print(result))
+    def previous(self) -> Token:
+        """ Get the previous token """
+        return self.tokens[self.current - 1]
