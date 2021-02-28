@@ -2,7 +2,7 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from lox.ast.token import TokenType
+from lox.ast.token import Token, TokenType
 
 
 def report(line: int, where: str, message: str):
@@ -14,12 +14,13 @@ def error_line(line: int, message: int):
     report(line, "", message)
 
 
-def error_token(token: TokenType, message: str):
-    if token == TokenType.EOF:
+def error_token(token: Token, message: str):
+    if token.type == TokenType.EOF:
         report(token.line, "  at end", message)
 
     report(token.line, " at '" + token.lexeme + "'", message)
 
 
-def error_runtime():
-    pass
+def error_runtime(token: Token, message: str):
+    # FIXME
+    report(token.line, " at '" + token.lexeme + "'", message)

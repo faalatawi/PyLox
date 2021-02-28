@@ -1,17 +1,17 @@
-# Copyright (c) 2020 Faisal Alatawi. All rights reserved
+# Copyright (c) 2021 Faisal Alatawi. All rights reserved
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-# from . import grammer
-from lox import grammer
-from .token_type import TokenType
-from . import lox_log
+from lox.ast.grammer import VisitorInterface, Expr, Binary, Unary, Grouping, Literal
+from lox.ast.token import Token, TokenType
+from lox.tools import logging as LoxLog
+from typing import Union, Any
 
 
 class RuntimeError(Exception):
     """This is a RuntimeError error"""
 
-    def __init__(self, token: TokenType, message):
+    def __init__(self, token: Token, message: str):
         self.message = message
         self.token = token
 
@@ -19,55 +19,59 @@ class RuntimeError(Exception):
         return f"RuntimeError: {self.message} , token = {self.token} "
 
 
-class Interpreter(grammer.VisitorInterface):
-    def __init__(self):
-        print("test")
+class Interpreter(VisitorInterface):
 
-    def interpret(self, expr):
+    def interpret(self, expr: Expr) -> Union[float, str]:
+        """ Use this function to interpret and AST """
         try:
             value = self.evaluate(expr)
+            return value
         except RuntimeError as e:
-            pass
+            # TODO: How to handdel this type of errors
+            LoxLog.error_runtime(e.token, e.message)
 
-    def evaluate(self, expr):
+    def evaluate(self, expr: Expr) -> Union[float, str, bool, None]:
         return expr.accept(self)
 
-    def visitLiteral(self, expr: grammer.Literal):
+    def visitLiteral(self, expr: Literal) -> Union[float, str]:
         return expr.value
 
-    def visitGrouping(self, expr: grammer.Grouping):
+    def visitGrouping(self, expr: Grouping) -> Union[float, str, bool, None]:
         return self.evaluate(expr.expression)
 
-    def visitUnary(self, expr: grammer.Unary):
+    def visitUnary(self, expr: Unary) -> Union[float, str, bool, None]:
         right = self.evaluate(expr.right)
+        op_type = expr.operator.type
 
-        if expr.operator == TokenType.MINUS:
-            self._check_number_operand(expr.operator, right)
+        if op_type == TokenType.MINUS:
+            # Raise error if right not a number
+            self.checkNumberOperand(expr.operator, right)
             return -1 * float(right)
 
-        if expr.operator == TokenType.BANG:
-            return not self._is_truthy(right)
+        if op_type == TokenType.BANG:
+            return not self.isTruthy(right)
 
         # Unreachable
         return None
 
-    def visitBinary(self, expr: grammer.Binary):
+    def visitBinary(self, expr: Binary):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
+        op_type = expr.operator.type
 
-        if expr.operator == TokenType.MINUS:
-            self._check_number_operands(expr.operator, left, right)
+        if op_type == TokenType.MINUS:
+            self.checkNumberOperands(expr.operator, left, right)
             return float(left) - float(right)
 
-        if expr.operator == TokenType.SLASH:
-            self._check_number_operands(expr.operator, left, right)
+        if op_type == TokenType.SLASH:
+            self.checkNumberOperands(expr.operator, left, right)
             return float(left) / float(right)
 
-        if expr.operator == TokenType.STAR:
-            self._check_number_operands(expr.operator, left, right)
+        if op_type == TokenType.STAR:
+            self.checkNumberOperands(expr.operator, left, right)
             return float(left) * float(right)
 
-        if expr.operator == TokenType.PLUS:
+        if op_type == TokenType.PLUS:
             if (type(left) == float) and (type(right) == float):
                 return left + right
 
@@ -77,33 +81,31 @@ class Interpreter(grammer.VisitorInterface):
             raise RuntimeError(
                 expr.operator, "Operands must be two numbers or two strings.")
 
-        if expr.operator == TokenType.GREATER:
-            self._check_number_operands(expr.operator, left, right)
+        if op_type == TokenType.GREATER:
+            self.checkNumberOperands(expr.operator, left, right)
             return float(left) > float(right)
 
-        if expr.operator == TokenType.GREATER_EQUAL:
-            self._check_number_operands(expr.operator, left, right)
+        if op_type == TokenType.GREATER_EQUAL:
+            self.checkNumberOperands(expr.operator, left, right)
             return float(left) >= float(right)
 
-        if expr.operator == TokenType.LESS:
-            self._check_number_operands(expr.operator, left, right)
+        if op_type == TokenType.LESS:
+            self.checkNumberOperands(expr.operator, left, right)
             return float(left) < float(right)
 
-        if expr.operator == TokenType.LESS_EQUAL:
-            self._check_number_operands(expr.operator, left, right)
+        if op_type == TokenType.LESS_EQUAL:
+            self.checkNumberOperands(expr.operator, left, right)
             return float(left) <= float(right)
 
-        if expr.operator == TokenType.BANG_EQUAL:
-            return not self._is_equal(left, right)
+        if op_type == TokenType.BANG_EQUAL:
+            return not self.isEqual(left, right)
 
-        if expr.operator == TokenType.EQUAL_EQUAL:
-            return self._is_equal(left, right)
+        if op_type == TokenType.EQUAL_EQUAL:
+            return self.isEqual(left, right)
 
         return None
 
-    # ======
-
-    def _is_truthy(self, expr):
+    def isTruthy(self, expr: Union[bool, None, Any]) -> bool:
         if expr == None:
             return False
 
@@ -112,20 +114,17 @@ class Interpreter(grammer.VisitorInterface):
 
         return True
 
-    def _is_equal(self, left, right):
-        # NO NEED:
-        # if left == None and right == None:
-        #     return True
-        # if left == None :
-        #     return False
+    def isEqual(self, left, right) -> bool:
         return left == right
 
-    def _check_number_operand(self, operator: TokenType, operand):
+    def checkNumberOperand(self, operator: Token, operand: Union[float, str, bool, None]):
+        """ Raise an error if the operand is not a number """
         if type(operand) == float:
             return
         raise RuntimeError(operator, "Operand must be a number.")
 
-    def _check_number_operands(self, operator, left, right):
+    def checkNumberOperands(self, operator: Token, left: Union[float, str, bool, None], right: Union[float, str, bool, None]):
+        """ Raise an error if left or right are not a number """
         if type(left) == float and type(right) == float:
             return
         raise RuntimeError(operator, "Operands must be a number.")

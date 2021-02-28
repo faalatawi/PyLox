@@ -4,29 +4,52 @@
 
 
 def test_interpreter():
-    pass
+    from lox.scanner import Scanner
+    from lox.parser import Parser
+    from lox.ast.ast_printer import ASTPrinter
+    from lox.interpreter import Interpreter
 
+    source = """ 1 + 999 """
 
-def test_parser():
-    import scanner
-
-    source = ""
-
-    lox_scan = scanner.Scanner(source)
+    lox_scan = Scanner(source)
 
     tokens = lox_scan.scanTokens()
 
-    print("==> Tokens:")
-    for t in tokens:
-        print(t)
-    print("\n\n")
+    print("Tokens:")
+    for tok in tokens:
+        print(tok)
+    print("\n")
 
     lox_parser = Parser(tokens)
     result = lox_parser.parse()
 
-    import ast_printer
+    printer = ASTPrinter()
 
-    printer = ast_printer.ASTPrinter()
+    print(printer.print(result))
+
+    print(Interpreter().evaluate(result))
+
+
+def test_parser():
+    from lox.scanner import Scanner
+    from lox.parser import Parser
+    from lox.ast.ast_printer import ASTPrinter
+
+    source = " 1 + 2 >= 133 + \" gggg \""
+
+    lox_scan = Scanner(source)
+
+    tokens = lox_scan.scanTokens()
+
+    print("Tokens:")
+    for tok in tokens:
+        print(tok)
+    print("\n")
+
+    lox_parser = Parser(tokens)
+    result = lox_parser.parse()
+
+    printer = ASTPrinter()
 
     print(printer.print(result))
 
@@ -81,4 +104,4 @@ def test_ASTPrinter():
 
 
 if __name__ == "__main__":
-    test_ASTPrinter()
+    test_interpreter()

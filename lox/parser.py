@@ -127,7 +127,7 @@ class Parser(object):
 
             return Grouping(expr)
 
-        raise self.error(self.peek().type, "Expect expression.")
+        raise self.error(self.peek(), "Expect expression.")
 
     def synchronize(self):
         """ TODO ???  """
@@ -154,11 +154,11 @@ class Parser(object):
         if self.check(token_type):
             return self.advance()
 
-        raise self.error(token_type, error_message)
+        raise self.error(self.peek(), error_message)
 
-    def error(self, token_type: TokenType, message: str) -> ParseError:
+    def error(self, tok: Token, message: str) -> ParseError:
         """ Log the parser error and return ParseError object """
-        LoxLog.error_token(token_type, message)
+        LoxLog.error_token(tok, message)
         return ParseError()
 
     def match(self, match_list: List[TokenType]) -> bool:
