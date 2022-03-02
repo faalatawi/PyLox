@@ -2,8 +2,8 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from lox.ast.token import TokenType, Token, lox_keywords, lox_token_dic
-import lox.tools.logging as LoxLog
+from ast.token import TokenType, Token, lox_keywords, lox_token_dic
+import tools.logging as LoxLog
 from typing import List, Union
 
 

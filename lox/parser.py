@@ -2,10 +2,10 @@
 # Using this source code is governed by an MIT license
 # you can find it in the LICENSE file.
 
-from lox.ast.grammer import Expr, Binary, Unary, Grouping, Literal
-from lox.ast.grammer import Stmt, PrintStatement, ExpressionStatement
-from lox.ast.token import Token, TokenType
-from lox.tools import logging as LoxLog
+from ast.grammer import Expr, Binary, Unary, Grouping, Literal
+from ast.grammer import Stmt, PrintStatement, ExpressionStatement
+from ast.token import Token, TokenType
+from tools import logging as LoxLog
 from typing import List, Union
 
 
