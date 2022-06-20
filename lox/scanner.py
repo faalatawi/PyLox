@@ -30,7 +30,7 @@ class Scanner(object):
         t = Token(type, text, literal, self.line)
         self.tokens.append(t)
 
-    def match(self, expected: str) -> bool:
+    def match_token(self, expected: str) -> bool:
         """ Match the input char with the current char and advance current counter """
         if self.isAtEnd():
             return False
@@ -154,6 +154,54 @@ class Scanner(object):
 
         else:
             LoxLog.error_line(self.line, "Unexpected character. : " + c)
+
+
+    def scan_token(self):
+        """ Exprimental function to scan tokens """
+        c = self.advance()
+
+        match c :
+    
+            case '\r' | '\t' | ' ' :
+                pass
+
+            case '\n' :
+                self.line += 1
+
+            case '"' :
+                self.string()
+            
+            case _ if self.isDigit(c) :
+                self.number()
+            
+            case _ if self.isAlpha(c) :
+                self.identifier()
+            
+            case '/' if self.match_token('/'):
+                while self.peek() != "\n" and not self.isAtEnd():
+                    self.advance()
+            
+            case '/' if self.match_token('*'):
+                while self.peek() != '*' and not self.isAtEnd():
+                    self.advance()
+                if self.match_token('*') and self.match_token('/'):
+                    self.advance() # TODO! not sure if this is correct
+                else:
+                    LoxLog.error_line(self.line, "Unterminated comment.")
+
+            case '/':
+                self.addToken(TokenType.SLASH)
+
+            case _ if c in lox_token_dic:
+                if c in ['!', '=', '<', '>'] and self.match("="):
+                    c += '='
+                self.addToken(lox_token_dic[c])
+
+            case _ :
+                LoxLog.error_line(self.line, "Unexpected character. : " + c)
+
+        
+
 
     def isAtEnd(self) -> bool:
         """ Are we at the end of the source?  """
